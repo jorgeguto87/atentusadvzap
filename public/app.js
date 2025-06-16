@@ -429,6 +429,8 @@ if (document.getElementById('confirmar_grupos')) {
         tr.appendChild(tdCheck);
 
         tabelaEsquerda.appendChild(tr);
+        
+        //setInterval(tr, 3000);
       });
     });
 
@@ -478,10 +480,115 @@ if (document.getElementById('confirmar_grupos')) {
   });
 }
 
+//meusanuncios
+if (document.getElementById('tabela_grupos_check')) {
+  fetch('/gruposcheck')
+    .then(res => res.json())
+    .then(grupos => {
+      const tbody = document.getElementById('tabela_grupos_check');
+      tbody.innerHTML = ''; // limpa antes de preencher (opcional)
+
+      grupos.forEach(grupo => {
+        const tr = document.createElement('tr');
+
+        const tdId = document.createElement('td');
+        tdId.textContent = grupo.id;
+
+        const tdNome = document.createElement('td');
+        tdNome.textContent = grupo.nome;
+
+        tr.appendChild(tdId);
+        tr.appendChild(tdNome);
+
+        tbody.appendChild(tr);
+      });
+    })
+    .catch(error => {
+      console.error('Erro ao carregar os grupos:', error);
+    });
+}
+if (document.getElementById('previewImagem_chk')) {
+  const selectDia = document.getElementById('diaSemana_chk');
+  const imagem = document.getElementById('previewImagem_chk');
+  const texto = document.getElementById('previewText_chk');
+
+  if (selectDia && imagem && texto) {
+    // Carregar grupos na tabela
+    
+    // Função para carregar prévia
+    const carregarPreview = (dia) => {
+      fetch(`/anuncio/${dia}`)
+        .then(res => res.json())
+        .then(data => {
+          imagem.src = data.imagemBase64 || '';
+          texto.textContent = data.texto || '';
+        })
+        .catch(err => console.error('Erro ao carregar anúncio:', err));
+    };
+
+    // Carrega a primeira vez
+    carregarPreview(selectDia.value);
+
+    // Atualiza ao mudar
+    selectDia.addEventListener('change', () => {
+      carregarPreview(selectDia.value);
+    });
+  }
+}
+
+//duplicar anuncios meusanuncios
+
+//document.addEventListener('DOMContentLoaded', () => {
+  
+  if (document.getElementById('confirmar_checkbox')) {
+    const btnConfirmar = document.getElementById('confirmar_checkbox');
+    btnConfirmar.addEventListener('click', () => {
+      const selectDia = document.getElementById('diaSemana_chk');
+      const diaOrigem = selectDia.value;
+
+      // Pegar todos os checkboxes marcados
+      const checkboxes = document.querySelectorAll('.main__checkbox');
+      const diasDestino = [];
+
+      checkboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+          // Extrair o dia do id, que está no formato checkbox_segunda, checkbox_terca, etc
+          const dia = checkbox.id.replace('checkbox_', '');
+          // Evita copiar para o mesmo dia origem
+          if (dia !== diaOrigem) diasDestino.push(dia);
+        }
+      });
+
+      if (diasDestino.length === 0) {
+        alert('Selecione pelo menos um dia diferente para copiar o anúncio.');
+        return;
+      }
+
+      fetch('/copiar-anuncio', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ diaOrigem, diasDestino })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('Erro ao copiar anúncio');
+        return res.text();
+      })
+      .then(msg => {
+        alert(msg);
+        // Opcional: desmarcar checkboxes após confirmação
+        checkboxes.forEach(c => c.checked = false);
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Erro ao copiar anúncio. Veja o console.');
+      });
+    });
+  //}
+};
 
 
-
- 
   // if (main.innerHTML.includes("id_exclusivo_da_nova_pagina")) { ... }
 }
 

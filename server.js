@@ -50,9 +50,10 @@ function lerGruposDestinatarios() {
   if (!fs.existsSync(filePath)) return [];
   return fs.readFileSync(filePath, 'utf-8')
     .split('\n')
-    .map(l => l.split('-')[0]?.trim())
+    .map(l => l.split('|')[0]?.trim())
     .filter(id => id && id.endsWith('@g.us'));
 }
+
 
 function lerMensagensDataTxt() {
   const filePath = path.join(__dirname, 'data.txt');
@@ -99,6 +100,8 @@ async function startClient() {
 
 startClient();
 
+
+
 async function restartClient() {
   if (client) await client.destroy();
   await startClient();
@@ -133,58 +136,95 @@ function escutarGrupos() {
 }
 
 function agendarEnvios() {
+  console.log('📅 Função de agendamento registrada');
   let enviadosHoje = new Set();
 
   cron.schedule('0 * * * *', async () => {
+    console.log('🕒 Agendamento ativado!');
     const agora = new Date();
     const hora = agora.getHours();
     const dia = agora.getDay(); // 0 = domingo
-    if (dia === 0) return; // Ignora domingo
+
+    console.log(`📆 Dia: ${dia} | Hora: ${hora}`);
+
+    if (dia === 0) {
+      console.log('⛔ Domingo. Nenhum envio será feito.');
+      return;
+    }
 
     const horarios = lerHorarios();
-    if (!horarios.includes(hora)) return;
+    console.log('📂 Horários cadastrados:', horarios);
+
+    if (!horarios.includes(hora)) {
+      console.log(`⏱️ Hora ${hora} não está nos horários programados.`);
+      return;
+    }
 
     const chaveEnvio = `${dia}-${hora}`;
-    if (enviadosHoje.has(chaveEnvio)) return;
+    if (enviadosHoje.has(chaveEnvio)) {
+      console.log('🔁 Já enviado neste horário. Ignorando...');
+      return;
+    }
 
     const nomeImagemBase = imagemMap[dia];
     const nomeMensagem = diaMap[dia];
-    if (!nomeImagemBase || !nomeMensagem) return;
+
+    if (!nomeImagemBase || !nomeMensagem) {
+      console.log('⚠️ Dia não mapeado corretamente:', dia);
+      return;
+    }
 
     const mensagemMap = lerMensagensDataTxt();
+    console.log('📜 Mapa de mensagens:', mensagemMap);
+
     const texto = mensagemMap[nomeMensagem];
+    console.log(`📄 Texto para ${nomeMensagem}:`, texto);
 
-    const extensoes = ['.jpg', '.png'];
+    const exts = ['.jpg', '.png'];
     let caminhoImagem = null;
+    let imagemExt = '';
 
-    for (const ext of extensoes) {
+    for (const ext of exts) {
       const tentativa = path.join(assetsDir, `${nomeImagemBase}${ext}`);
       if (fs.existsSync(tentativa)) {
         caminhoImagem = tentativa;
+        imagemExt = ext;
         break;
       }
     }
 
+    if (!caminhoImagem) {
+      console.log(`🖼️ Imagem não encontrada para ${nomeImagemBase}`);
+    } else {
+      console.log(`🖼️ Imagem encontrada: ${caminhoImagem}`);
+    }
+
     if (!caminhoImagem || !texto) {
-      console.log(`⚠️ Nenhum conteúdo válido para ${nomeMensagem}. Imagem ou texto ausente.`);
+      console.log(`⚠️ Conteúdo incompleto para ${nomeMensagem.toUpperCase()}. Imagem ou texto ausente.`);
       return;
     }
 
-    enviadosHoje.add(chaveEnvio);
+    try {
+      const media = MessageMedia.fromFilePath(caminhoImagem);
+      const grupos = lerGruposDestinatarios();
+      console.log(`📣 Enviando para grupos:, \n${grupos}`);
 
-    const media = MessageMedia.fromFilePath(caminhoImagem);
-    const grupos = lerGruposDestinatarios();
-
-    for (const grupoId of grupos) {
-      try {
-        await client.sendMessage(grupoId, media, { caption: texto });
-        console.log(`✅ Mensagem enviada para: ${grupoId}`);
-      } catch (err) {
-        console.error(`❌ Erro ao enviar para ${grupoId}:`, err);
+      for (const grupoId of grupos) {
+        try {
+          await client.sendMessage(grupoId, media, { caption: texto });
+          console.log(`✅ Mensagem enviada para ${grupoId} (${nomeMensagem})`);
+        } catch (erroEnvio) {
+          console.error(`❌ Erro ao enviar para ${grupoId}:`, erroEnvio.message);
+        }
       }
+
+      enviadosHoje.add(chaveEnvio); // marca como enviado
+    } catch (erroGeral) {
+      console.error(`❌ Erro no processo de envio para ${nomeMensagem}:`, erroGeral.message);
     }
   });
 }
+
 
 // ROTAS ==================================================
 
@@ -310,7 +350,180 @@ app.post('/grupos', (req, res) => {
   res.json({ message: 'Grupos salvos com sucesso!' });
 });
 
+//meusanuncios
 
+app.get('/gruposcheck', (req, res) => {
+  const gruposPath = path.join(__dirname, 'grupos_check.txt');
+
+  if (!fs.existsSync(gruposPath)) {
+    return res.json([]); // Retorna array vazio se o arquivo não existir
+  }
+
+  const linhas = fs.readFileSync(gruposPath, 'utf-8').split('\n').filter(Boolean);
+  const grupos = linhas.map(linha => {
+    const [id, nome] = linha.split('|').map(p => p.trim());
+    return { id, nome };
+  });
+
+  res.json(grupos);
+});
+
+//meusanuncios preview
+
+app.get('/anuncio/:dia', (req, res) => {
+  const nomesDias = {
+    segunda: 'diaum',
+    terca: 'diadois',
+    quarta: 'diatres',
+    quinta: 'diaquatro',
+    sexta: 'diacinco',
+    sabado: 'diaseis'
+  };
+
+  const dia = req.params.dia.toLowerCase();
+  const nomeImagem = nomesDias[dia];
+  if (!nomeImagem) return res.status(400).json({ error: 'Dia inválido' });
+
+  const exts = ['jpg', 'png'];
+  let imagemPath = null;
+  for (const ext of exts) {
+    const caminho = path.join(__dirname, 'assets', `${nomeImagem}.${ext}`);
+    if (fs.existsSync(caminho)) {
+      imagemPath = caminho;
+      break;
+    }
+  }
+
+  const imagemBase64 = imagemPath
+    ? `data:image/${path.extname(imagemPath).substring(1)};base64,${fs.readFileSync(imagemPath, 'base64')}`
+    : '';
+
+  // função para ler mensagens do data.txt
+  const lerMensagensDataTxt = () => {
+    const dataPath = path.join(__dirname, 'data.txt');
+    const mapa = {};
+    if (fs.existsSync(dataPath)) {
+      const conteudo = fs.readFileSync(dataPath, 'utf-8');
+      const linhas = conteudo.split('\n').filter(Boolean);
+      for (const linha of linhas) {
+        const [diaTxt, ...resto] = linha.split(':');
+        if (diaTxt && resto.length) {
+          mapa[diaTxt.trim()] = resto.join(':').replace(/\\n/g, '\n').trim();
+        }
+      }
+    }
+    return mapa;
+  };
+
+  const mapaMensagens = lerMensagensDataTxt();
+  const texto = mapaMensagens[dia] || '';
+
+  res.json({ texto, imagemBase64 });
+});
+
+//meusanuncios duplicar
+app.post('/copiar-anuncio', (req, res) => {
+  try {
+    const { diaOrigem, diasDestino } = req.body;
+
+    if (!diaOrigem || !diasDestino || !Array.isArray(diasDestino)) {
+      return res.status(400).send('Parâmetros inválidos');
+    }
+
+    const nomesDias = { segunda: 'diaum', terca: 'diadois', quarta: 'diatres', quinta: 'diaquatro', sexta: 'diacinco', sabado: 'diaseis' };
+
+    const nomeOrigem = nomesDias[diaOrigem];
+    if (!nomeOrigem) return res.status(400).send('Dia de origem inválido');
+
+    const exts = ['.jpg', '.png'];
+    let imagemOrigemPath = null;
+    let extensao = '';
+
+    for (const ext of exts) {
+      const caminho = path.join(__dirname, 'assets', `${nomeOrigem}${ext}`);
+      if (fs.existsSync(caminho)) {
+        imagemOrigemPath = caminho;
+        extensao = ext;
+        break;
+      }
+    }
+    if (!imagemOrigemPath) return res.status(404).send('Imagem de origem não encontrada');
+
+    const mensagens = lerMensagensDataTxt();
+
+    const textoOrigem = mensagens[diaOrigem];
+    if (!textoOrigem) return res.status(404).send('Mensagem de origem não encontrada');
+
+    diasDestino.forEach(dest => {
+      const nomeDestino = nomesDias[dest];
+      if (!nomeDestino) return;
+
+      const destinoPath = path.join(__dirname, 'assets', `${nomeDestino}${extensao}`);
+      fs.copyFileSync(imagemOrigemPath, destinoPath);
+
+      mensagens[dest] = textoOrigem;
+    });
+
+    const ordemDias = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
+    const novaData = ordemDias
+      .map(dia => mensagens[dia] ? `${dia}: ${mensagens[dia].replace(/\n/g, '\\n')}` : null)
+      .filter(Boolean)
+      .join('\n');
+
+    fs.writeFileSync(path.join(__dirname, 'data.txt'), novaData + '\n');
+
+    res.send('Anúncio copiado com sucesso.');
+  } catch (error) {
+    console.error('Erro em /copiar-anuncio:', error);
+    res.status(500).send('Erro interno no servidor');
+  }
+});
+
+
+//teste
+/*app.get('/testar-envio-agora', async (req, res) => {
+  const dia = new Date().getDay(); // dia atual
+  const hora = new Date().getHours(); // hora atual
+  const nomeImagemBase = imagemMap[dia];
+  const nomeMensagem = diaMap[dia];
+
+  if (!nomeImagemBase || !nomeMensagem) {
+    return res.send('❌ Dia inválido');
+  }
+
+  const mensagemMap = lerMensagensDataTxt();
+  const texto = mensagemMap[nomeMensagem];
+  if (!texto) return res.send('❌ Texto não encontrado no data.txt');
+
+  const exts = ['.jpg', '.png'];
+  let caminhoImagem = null;
+
+  for (const ext of exts) {
+    const tentativa = path.join(assetsDir, `${nomeImagemBase}${ext}`);
+    if (fs.existsSync(tentativa)) {
+      caminhoImagem = tentativa;
+      break;
+    }
+  }
+
+  if (!caminhoImagem) return res.send('❌ Imagem não encontrada');
+
+  try {
+    const media = MessageMedia.fromFilePath(caminhoImagem);
+    const grupos = lerGruposDestinatarios();
+
+    for (const grupoId of grupos) {
+      await client.sendMessage(grupoId, media, { caption: texto });
+      console.log(`✅ Mensagem de teste enviada para ${grupoId}`);
+    }
+
+    res.send('✅ Teste de envio manual concluído.');
+  } catch (erro) {
+    console.error('❌ Erro no envio de teste:', erro);
+    res.send('❌ Erro ao enviar mensagem de teste');
+  }
+});
+*/
 
 app.listen(PORT, () => {
   console.log(`🟢 Servidor rodando em http://localhost:${PORT}/index.html`);

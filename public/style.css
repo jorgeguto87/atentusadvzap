@@ -404,6 +404,22 @@ tr:nth-child(even) {
       margin: 20px auto;
     }
 
+    .main__selection__checkbox{
+        display: flex;
+        flex-direction: column;
+        max-width: 190px;
+        justify-content: center;
+        align-content: center;
+        
+    }
+
+    .main__anuncios{
+        display: flex;
+        flex-direction: column;
+        align-items: center;        
+        justify-content: flex-start;
+    }
+
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
