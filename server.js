@@ -479,6 +479,68 @@ app.post('/copiar-anuncio', (req, res) => {
   }
 });
 
+//apagar anuncio
+app.post('/apagar-anuncio', (req, res) => {
+  try {
+    const { dia } = req.body;
+
+    if (!dia) return res.status(400).send('Dia não informado.');
+
+    const nomesDias = { segunda: 'diaum', terca: 'diadois', quarta: 'diatres', quinta: 'diaquatro', sexta: 'diacinco', sabado: 'diaseis' };
+    const nomeArquivo = nomesDias[dia];
+
+    if (!nomeArquivo) return res.status(400).send('Dia inválido.');
+
+    // Apagar imagem do dia
+    const exts = ['.jpg', '.png'];
+    for (const ext of exts) {
+      const caminho = path.join(__dirname, 'assets', `${nomeArquivo}${ext}`);
+      if (fs.existsSync(caminho)) fs.unlinkSync(caminho);
+    }
+
+    // Apagar texto do dia
+    const mensagens = lerMensagensDataTxt();
+    delete mensagens[dia];
+
+    const ordemDias = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
+    const novaData = ordemDias
+      .map(d => mensagens[d] ? `${d}: ${mensagens[d].replace(/\n/g, '\\n')}` : null)
+      .filter(Boolean)
+      .join('\n');
+
+    fs.writeFileSync(path.join(__dirname, 'data.txt'), novaData + '\n');
+
+    res.send(`Anúncio apagado com sucesso.`);
+  } catch (error) {
+    console.error('Erro em /apagar-anuncio:', error);
+    res.status(500).send('Erro interno no servidor');
+  }
+});
+
+//apagar todos
+app.post('/apagar-todos-anuncios', (req, res) => {
+  try {
+    const nomesDias = { segunda: 'diaum', terca: 'diadois', quarta: 'diatres', quinta: 'diaquatro', sexta: 'diacinco', sabado: 'diaseis' };
+
+    // Apagar todas as imagens
+    Object.values(nomesDias).forEach(nomeArquivo => {
+      ['.jpg', '.png'].forEach(ext => {
+        const caminho = path.join(__dirname, 'assets', `${nomeArquivo}${ext}`);
+        if (fs.existsSync(caminho)) fs.unlinkSync(caminho);
+      });
+    });
+
+    // Limpar o data.txt
+    fs.writeFileSync(path.join(__dirname, 'data.txt'), '');
+
+    res.send('Todos os anúncios foram apagados com sucesso.');
+  } catch (error) {
+    console.error('Erro em /apagar-todos-anuncios:', error);
+    res.status(500).send('Erro interno no servidor');
+  }
+});
+
+
 
 //teste
 /*app.get('/testar-envio-agora', async (req, res) => {

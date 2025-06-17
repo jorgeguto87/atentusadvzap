@@ -22,7 +22,18 @@ function inicializarElementosPagina() {
     '😀','😃','😄','😁','😆','😅','😂','🤣','😊','😇',
     '🙂','🙃','😉','😍','🥰','😘','😗','😙','😚','😎',
     '🤩','🥳','😏','😋','😜','🤪','😝','🤑','🤗','👍',
-    '👎','👌','✌️','🤞','🤟','🤘','🤙','👋','👏','🙏',
+    '👎','👌','✌️','🤞','🤟','🤘','🤙','👋','👏','🙏','👇',
+    '👆','👂','👃','👄','👶','👦','👧','👨','👩','👪',
+    '👫','👬','👭','👮','👯','👰','👱','👲','👳','👴',
+    '👵','👶','👷','👸','👹','👺','👻','👼','👽','👾',
+    '👿','💀','💂','💃','💄','💅','💆','💇','💈','💉',
+    '💊','💋','💌','💍','💎','💏','💐','💑','💒','💓',
+    '💔','💕','💖','💗','💘','💙','💚','💛','💜','💝',
+    '💞','💟','💠','💡','💢','💣','💤','💥','💦','💧',
+    '💨','💩','💪','💫','💬','💭','💮','💯','💰','💱',
+    '💲','💳','💴','💵','💶','💷','💸','💹','💺','💻',
+    '💼','💽','💾','💿','📀','📁','📂','📃','📄','📅',
+    '📆','📇','📈','📉','📊','📋','📌','📍','📎','📏',
     '❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔',
     '🔥','✨','⚡','💥','⭐','🎉','🎊','🎈','🥳','🎂',
     '🍾','🥂','🍻','🍹','🍕','🍔','🍟','🌮','🍩','🍪',
@@ -459,6 +470,7 @@ if (document.getElementById('confirmar_grupos')) {
 
   btnConfirmarGrupos.addEventListener('click', () => {
     const linhasSelecionadas = tabelaDireita.querySelectorAll('tr');
+    const status = document.getElementById('status_grupos');
     const gruposSelecionados = Array.from(linhasSelecionadas).map(tr => ({
       id: tr.children[0].textContent,
       nome: tr.children[1].textContent
@@ -471,10 +483,12 @@ if (document.getElementById('confirmar_grupos')) {
     })
       .then(res => res.json())
       .then(data => {
-        alert(data.message);
+        //alert(data.message);
+        status.textContent = data.message;
       })
       .catch(err => {
-        alert('Erro ao salvar os grupos');
+        //alert('Erro ao salvar os grupos');
+        status.textContent = 'Erro ao salvar os grupos';
         console.error(err);
       });
   });
@@ -513,17 +527,21 @@ if (document.getElementById('previewImagem_chk')) {
   const texto = document.getElementById('previewText_chk');
 
   if (selectDia && imagem && texto) {
-    // Carregar grupos na tabela
-    
     // Função para carregar prévia
     const carregarPreview = (dia) => {
       fetch(`/anuncio/${dia}`)
         .then(res => res.json())
         .then(data => {
-          imagem.src = data.imagemBase64 || '';
+          // Se não há imagem ou está vazia, usa a default
+          imagem.src = data.imagemBase64 || 'default_preview.jpg';
           texto.textContent = data.texto || '';
         })
-        .catch(err => console.error('Erro ao carregar anúncio:', err));
+        .catch(err => {
+          console.error('Erro ao carregar anúncio:', err);
+          // Em caso de erro, também usa a imagem default
+          imagem.src = 'default_preview.jpg';
+          texto.textContent = '';
+        });
     };
 
     // Carrega a primeira vez
@@ -545,6 +563,7 @@ if (document.getElementById('previewImagem_chk')) {
     btnConfirmar.addEventListener('click', () => {
       const selectDia = document.getElementById('diaSemana_chk');
       const diaOrigem = selectDia.value;
+      const statuschk = document.getElementById('status_checkbox');
 
       // Pegar todos os checkboxes marcados
       const checkboxes = document.querySelectorAll('.main__checkbox');
@@ -560,7 +579,8 @@ if (document.getElementById('previewImagem_chk')) {
       });
 
       if (diasDestino.length === 0) {
-        alert('Selecione pelo menos um dia diferente para copiar o anúncio.');
+        //alert('Selecione pelo menos um dia diferente para copiar o anúncio.');
+        statuschk.textContent = 'Selecione pelo menos um dia diferente para copiar o anúncio.';
         return;
       }
 
@@ -571,21 +591,80 @@ if (document.getElementById('previewImagem_chk')) {
         },
         body: JSON.stringify({ diaOrigem, diasDestino })
       })
+      
       .then(res => {
         if (!res.ok) throw new Error('Erro ao copiar anúncio');
         return res.text();
       })
       .then(msg => {
-        alert(msg);
+        //alert(msg);
+        statuschk.textContent = msg;
         // Opcional: desmarcar checkboxes após confirmação
         checkboxes.forEach(c => c.checked = false);
       })
       .catch(err => {
         console.error(err);
-        alert('Erro ao copiar anúncio. Veja o console.');
+        //alert('Erro ao copiar anúncio. Veja o console.');
+        statuschk.textContent = 'Erro ao copiar anúncio. Veja o console.';
       });
     });
   //}
+};
+//Apagar anuncio
+if (document.getElementById('btn-apagar-anuncio')){
+  const btnApagarAnuncio = document.getElementById('btn-apagar-anuncio');
+  btnApagarAnuncio.addEventListener('click', async () => {
+  const diaSelecionado = document.getElementById('diaSemana_chk').value;
+  const statuschk = document.getElementById('status_checkbox');
+
+
+  if (!diaSelecionado) {
+    //alert('Por favor, selecione um dia.');
+    statuschk.textContent = 'Por favor, selecione um dia.';
+    return;
+  }
+
+  try {
+    const resposta = await fetch('/apagar-anuncio', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dia: diaSelecionado })
+    });
+
+    const textoResposta = await resposta.text();
+    //alert(textoResposta);
+    statuschk.textContent = textoResposta;
+  } catch (error) {
+    console.error('Erro ao apagar anúncio:', error);
+    //alert('Erro ao tentar apagar o anúncio.');
+    statuschk.textContent = 'Erro ao tentar apagar o anúncio.';
+  }
+
+});
+};
+//Apagar todos
+if (document.getElementById('btn-apagar-todos')){
+  const btnApagarTodos = document.getElementById('btn-apagar-todos');
+  btnApagarTodos.addEventListener('click', async () => {
+    const statuschk = document.getElementById('status_checkbox');
+  if (!confirm('Tem certeza que deseja apagar todos os anúncios? Esta ação não pode ser desfeita!')) {
+    return;
+  }
+
+  try {
+    const resposta = await fetch('/apagar-todos-anuncios', {
+      method: 'POST'
+    });
+
+    const textoResposta = await resposta.text();
+    //alert(textoResposta);
+    statuschk.textContent = textoResposta;
+  } catch (error) {
+    console.error('Erro ao apagar todos os anúncios:', error);
+    //alert('Erro ao tentar apagar todos os anúncios.');
+    statuschk.textContent = 'Erro ao tentar apagar todos os anúncios.';
+  }
+});
 };
 
 

@@ -133,8 +133,9 @@
     flex-direction: column;
     align-items: center;
     align-content:flex-start;
-    max-width: 480px;
-    max-height: auto;
+    max-width: 560px;
+    max-height: 400px;
+    overflow-y: auto;
 }
 
 .main__table__right{
@@ -142,8 +143,9 @@
     flex-direction: column;
     align-items: center;
     align-content:flex-start;
-    max-width: 480px;
-    max-height: auto;
+    max-width: 560px;
+    max-height: 400px;
+    overflow-y: auto;
 }
 
 .main__preview{
@@ -176,6 +178,21 @@
     font-size: 24px;
     text-align: center;
     margin: 1rem;
+}
+
+.main__grupos{
+    max-width: 560px;
+    max-height: 400px;
+    overflow-y: auto;
+    text-align: center;
+}
+
+.main__selection__btns{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
 }
 
 .main__selection__container{
