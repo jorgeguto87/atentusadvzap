@@ -10,8 +10,6 @@
     padding: 0;
 }
 
-
-
 .corpo__principal{
     background-image: url("background.jpg");
     background-size: cover;
@@ -27,14 +25,14 @@
 
 .cabecalho__titulo{
     font-family: var(--fonte-primaria);
-    font-size: 36px;
+    font-size: 2.25rem; /* 36px */
     text-align: center;
     margin: 1rem;
-    margin-top: -84px;
+    margin-top: -5.25rem; /* -84px */
 }
 
 .cabecalho__logo{
-    width: 192px;
+    width: 12rem; /* 192px */
     height: auto;
     margin: 1rem;
 }
@@ -52,10 +50,9 @@
 .menu a{
     text-decoration: none;
     color: aliceblue;
-    font-size: 20px;
+    font-size: 1.25rem; /* 20px */
     font-family: var(--fonte-secundaria);
     font-weight: 600;
-
 }
 
 .menu a:hover{
@@ -65,19 +62,18 @@
     font-weight: 600;
 }
     
-
 #emoji-picker {
   cursor: pointer;
   user-select: none;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 0.5rem; /* 8px */
 }
 
 #emoji-picker span {
-  font-size: 12px;
-  padding: 5px;
-  border-radius: 5px;
+  font-size: 0.75rem; /* 12px */
+  padding: 0.3125rem; /* 5px */
+  border-radius: 0.3125rem; /* 5px */
   transition: background-color 0.2s;
 }
 
@@ -115,8 +111,7 @@
     flex-direction: column;
     align-items: center;
     align-content: center;
-        min-height: 80vh;
-
+    min-height: 80vh;
 }
 
 .main__uploads__container{
@@ -125,7 +120,7 @@
     align-items: center;
     align-content: flex-start;
     justify-content: center;
-    max-height: 480px;
+    max-height: 30rem; /* 480px */
 }
 
 .main__table__left{
@@ -133,8 +128,8 @@
     flex-direction: column;
     align-items: center;
     align-content:flex-start;
-    max-width: 560px;
-    max-height: 400px;
+    max-width: 35rem; /* 560px */
+    max-height: 25rem; /* 400px */
     overflow-y: auto;
 }
 
@@ -143,8 +138,8 @@
     flex-direction: column;
     align-items: center;
     align-content:flex-start;
-    max-width: 560px;
-    max-height: 400px;
+    max-width: 35rem; /* 560px */
+    max-height: 25rem; /* 400px */
     overflow-y: auto;
 }
 
@@ -153,36 +148,32 @@
     flex-direction: column;
     align-items: center;
     align-content:flex-start;
-    max-width: 300px;
+    max-width: 18.75rem; /* 300px */
     max-height: auto;
-
 }
 
 .main__preview p{
     max-width: 100%;
     word-break: break-word;
     overflow-wrap: break-word;
-    font-size: 13px;
-   
+    font-size: 0.8125rem; /* 13px */
 }
 
-
 .main__preview__imagem{
-    width: 240px;
+    width: 15rem; /* 240px */
     height: auto;
-    
 }
 
 .main__titulo{
     font-family: var(--fonte-primaria);
-    font-size: 24px;
+    font-size: 1.5rem; /* 24px */
     text-align: center;
     margin: 1rem;
 }
 
 .main__grupos{
-    max-width: 560px;
-    max-height: 400px;
+    max-width: 35rem; /* 560px */
+    max-height: 25rem; /* 400px */
     overflow-y: auto;
     text-align: center;
 }
@@ -205,27 +196,25 @@
 
 .main__selection{
     font-family: var(--fonte-secundaria);
-    font-size: 16px;
+    font-size: 1rem; /* 16px */
     text-align: center;
     margin: 1rem;
 }
 
 .main__selection__input{
     font-family: var(--fonte-secundaria);
-    font-size: 14px;
+    font-size: 0.875rem; /* 14px */
     text-align: center;
     margin: 1rem;
     background-color: rgb(152, 192, 245);
     border-radius: 1rem;
     border: none;
     padding: 0.5rem;
-
 }
-
 
 .main__button{
     font-family: var(--fonte-secundaria);
-    font-size: 14px;
+    font-size: 0.875rem; /* 14px */
     text-align: center;
     margin: 1rem;
     background-color: rgb(152, 192, 245);
@@ -234,12 +223,11 @@
     padding: 0.5rem;
     cursor: pointer;
     font-weight: 600;
-
 }
 
 .main__ficheiro{
     font-family: var(--fonte-secundaria);
-    font-size: 14px;
+    font-size: 0.875rem; /* 14px */
     text-align: center;
     margin: 1rem;
     background-color: rgb(152, 192, 245);
@@ -251,7 +239,7 @@
 
 .main__selection__container #file-input::file-selector-button{
     font-family: var(--fonte-secundaria);
-    font-size: 14px;
+    font-size: 0.875rem; /* 14px */
     text-align: center;
     margin: 1rem;
     background-color: rgb(152, 192, 245);
@@ -278,7 +266,7 @@
 
 .main__textarea{
     font-family: var(--fonte-secundaria);
-    font-size: 14px;
+    font-size: 0.875rem; /* 14px */
     border: none;
     padding: 0.5rem;
     border-radius: 1rem;
@@ -306,15 +294,15 @@ main button:hover{
     flex-direction: column;
     align-items: center;
     align-content: center;
-    max-height: 600px;
-    max-width: 240px;
+    max-height: 37.5rem; /* 600px */
+    max-width: 15rem; /* 240px */
 }
+
 .main__selection__hours{
     display:flex;
     flex-direction: column;
     align-items: center;
     align-content: center;
-
 }
 
 #chooseHours1 #chooseHours2 #chooseHours3
@@ -324,7 +312,7 @@ main button:hover{
 
 .input__generator{
     font-family: var(--fonte-secundaria);
-    font-size: 14px;
+    font-size: 0.875rem; /* 14px */
     text-align: left;
     margin: 1rem;
     border-radius: 1rem;
@@ -338,7 +326,7 @@ main button:hover{
   max-width: 100%;
   color: #ffffff;
   font-family: var(--fonte-secundaria);
-  font-size: 14px;
+  font-size: 0.875rem; /* 14px */
   text-decoration: none; 
 }
 
@@ -361,15 +349,15 @@ main button:hover{
 table {
   font-family: arial, sans-serif;
   border-collapse: collapse;
-  width: 480px;
+  width: 30rem; /* 480px */
 }
 
 td, th {
-  border: 1px solid #dddddd;
+  border: 0.0625rem solid #dddddd; /* 1px */
   text-align: left;
-  padding: 8px;
+  padding: 0.5rem; /* 8px */
   font-family: var(--fonte-secundaria);
-  font-size: 12px;
+  font-size: 0.75rem; /* 12px */
   text-align: center;
   backdrop-filter: saturate(180%);
 }
@@ -383,61 +371,311 @@ tr:nth-child(even) {
       align-items: center;
       flex-direction: column;
       backdrop-filter: saturate(180%);
-      border-radius: 20px;
-      padding: 40px;
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
-      max-width: 500px;
+      border-radius: 1.25rem; /* 20px */
+      padding: 2.5rem; /* 40px */
+      box-shadow: 0 0 1.875rem rgba(0, 0, 0, 0.3); /* 30px */
+      max-width: 31.25rem; /* 500px */
       width: 100%;
-    }
+}
 
 #qrcode {
-      width: 300px;
-      height: 300px;
-      border-radius: 15px;
-      border: 4px solid #fff;
+      width: 18.75rem; /* 300px */
+      height: 18.75rem; /* 300px */
+      border-radius: 0.9375rem; /* 15px */
+      border: 0.25rem solid #fff; /* 4px */
       background: #fff;
       display: none;
       margin: auto;
-    }
+}
 
-    #status {
-      margin-top: 20px;
+#status {
+      margin-top: 1.25rem; /* 20px */
       font-size: 1.1rem;
       font-weight: bold;
       color: #ffffff;
-    }
+}
 
-    .success {
+.success {
       color: #0f0;
-    }
+}
 
-    .spinner {
-      border: 5px solid rgba(255,255,255,0.2);
-      border-top: 5px solid #fff;
+.spinner {
+      border: 0.3125rem solid rgba(255,255,255,0.2); /* 5px */
+      border-top: 0.3125rem solid #fff; /* 5px */
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
+      width: 2.5rem; /* 40px */
+      height: 2.5rem; /* 40px */
       animation: spin 1s linear infinite;
-      margin: 20px auto;
-    }
+      margin: 1.25rem auto; /* 20px */
+}
 
-    .main__selection__checkbox{
+.main__selection__checkbox{
         display: flex;
         flex-direction: column;
-        max-width: 190px;
+        max-width: 11.875rem; /* 190px */
         justify-content: center;
         align-content: center;
-        
-    }
+}
 
-    .main__anuncios{
+.main__anuncios{
         display: flex;
         flex-direction: column;
         align-items: center;        
         justify-content: flex-start;
-    }
+}
 
-    @keyframes spin {
+@keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
+}
+
+/* MEDIA QUERIES RESPONSIVAS - Adicione ao final do seu CSS original */
+
+/* MOBILE - até 768px */
+@media (max-width: 48rem) {
+    .cabecalho__titulo {
+        font-size: 1.5rem;
+        margin-top: 0;
     }
+    
+    .cabecalho__logo {
+        width: 8rem;
+    }
+    
+    .menu {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .menu a {
+        font-size: 1rem;
+        padding: 0.5rem;
+        text-align: center;
+    }
+    
+    .main__container {
+        flex-direction: column;
+        gap: 2rem;
+        padding: 1rem;
+    }
+    
+    .main__table__left,
+    .main__table__right {
+        max-width: 100%;
+        max-height: 20rem;
+    }
+    
+    .main__grupos {
+        max-width: 100%;
+        max-height: 20rem;
+    }
+    
+    .main__preview {
+        max-width: 100%;
+    }
+    
+    .main__preview__imagem {
+        width: 100%;
+        max-width: 15rem;
+    }
+    
+    .main__generator__links {
+        max-width: 100%;
+        max-height: 25rem;
+    }
+    
+    .main__selection__container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .main__selection__btns {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .main__selection__input,
+    .main__button,
+    .main__ficheiro,
+    .input__generator {
+        width: 100%;
+        max-width: 15rem;
+        margin: 0.5rem 0;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+    }
+    
+    .main__textarea {
+        width: 100%;
+        max-width: 15rem;
+        min-height: 6rem;
+    }
+    
+    .buttons__textarea {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    table {
+        width: 100%;
+        font-size: 0.6rem;
+    }
+    
+    td, th {
+        padding: 0.25rem;
+        font-size: 0.6rem;
+    }
+    
+    .container {
+        max-width: 100%;
+        padding: 1.5rem;
+        margin: 0 1rem;
+    }
+    
+    #qrcode {
+        width: 100%;
+        max-width: 15rem;
+        height: auto;
+    }
+    
+    .rodape {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .main__selection__checkbox {
+        max-width: 100%;
+    }
+}
+
+/* TABLET - 768px a 1024px */
+@media (min-width: 48rem) and (max-width: 64rem) {
+    .cabecalho__titulo {
+        font-size: 2rem;
+        margin-top: -2rem;
+    }
+    
+    .cabecalho__logo {
+        width: 10rem;
+    }
+    
+    .menu {
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+    
+    .main__container {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 2rem;
+    }
+    
+    .main__table__left,
+    .main__table__right {
+        max-width: 28rem;
+    }
+    
+    .main__grupos {
+        max-width: 28rem;
+    }
+    
+    .main__generator__links {
+        max-width: 12rem;
+        max-height: 30rem;
+    }
+    
+    table {
+        width: 25rem;
+    }
+    
+    .container {
+        max-width: 25rem;
+    }
+    
+    #qrcode {
+        width: 15rem;
+        height: 15rem;
+    }
+}
+
+/* AJUSTES GERAIS PARA RESPONSIVIDADE */
+@media (max-width: 64rem) {
+    .corpo__principal {
+        background-attachment: scroll;
+    }
+    
+    * {
+        box-sizing: border-box;
+    }
+    
+    .main__selection__container #file-input {
+        width: 100%;
+        max-width: 15rem;
+    }
+    
+    .main__selection__hours {
+        align-items: center;
+    }
+    
+    #chooseHours1, #chooseHours2, #chooseHours3,
+    #chooseHours4, #chooseHours5, #chooseHours6 {
+        margin-bottom: 1rem;
+        width: 100%;
+        max-width: 12rem;
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* MELHORIAS DE TOQUE PARA MOBILE */
+@media (max-width: 48rem) {
+    .main__titulo {
+        margin-top: 2rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .menu a,
+    .main__button,
+    .main__ficheiro,
+    .main__selection__input,
+    button {
+        min-height: 2.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+    }
+    
+    .main__selection__container #file-input::file-selector-button {
+        min-height: 2.25rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* LANDSCAPE MOBILE */
+@media (max-width: 48rem) and (orientation: landscape) {
+    .cabecalho__titulo {
+        font-size: 1.25rem;
+        margin: 0.5rem;
+    }
+    
+    .cabecalho__logo {
+        width: 6rem;
+    }
+    
+    .main__container {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .menu {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+}
