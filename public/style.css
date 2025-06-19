@@ -560,6 +560,24 @@ main #login{
         flex-wrap: wrap;
         gap: 0.5rem;
     }
+
+    .main__login__container{
+        width: 100%;
+        max-width: 15rem;
+        align-content:center;
+        align-items:center;
+        /*margin: 0.5rem 0;*/
+        padding: 0.5rem 0.5rem;
+        font-size: 0.8rem;
+
+    }
+ 
+    .main__login__container button{
+        max-width: 5rem;
+        height: auto;      
+
+    }
+
     
     table {
         width: 100%;
@@ -624,6 +642,23 @@ main #login{
     .main__grupos {
         max-width: 28rem;
     }
+
+    .main__login__container{
+        width: 100%;
+        max-width: 15rem;
+        align-content:center;
+        align-items:center;
+        /*margin: 0.5rem 0;*/
+        padding: 0.5rem 0.5rem;
+        font-size: 0.8rem;
+
+    }
+ 
+    .main__login__container button{
+        max-width: 5rem;
+        height: auto;      
+
+    }
     
     .main__generator__links {
         max-width: 12rem;
@@ -658,6 +693,23 @@ main #login{
         width: 100%;
         max-width: 15rem;
     }
+
+    .main__login__container{
+        width: 100%;
+        max-width: 15rem;
+        align-content:center;
+        align-items:center;
+        /*margin: 0.5rem 0;*/
+        padding: 0.5rem 0.5rem;
+        font-size: 0.8rem;
+
+    }
+ 
+    .main__login__container button{
+        max-width: 5rem;
+        height: auto;      
+
+    }
     
     .main__selection__hours {
         align-items: center;
@@ -691,6 +743,23 @@ main #login{
         justify-content: center;
         font-size: 0.8rem;
     }
+
+    .main__login__container{
+        width: 100%;
+        max-width: 15rem;
+        align-content:center;
+        align-items:center;
+        /*margin: 0.5rem 0;*/
+        padding: 0.5rem 0.5rem;
+        font-size: 0.8rem;
+
+    }
+ 
+    .main__login__container button{
+        max-width: 5rem;
+        height: auto;      
+
+    }
     
     .main__selection__container #file-input::file-selector-button {
         min-height: 2.25rem;
@@ -700,7 +769,7 @@ main #login{
 }
 
 /* LANDSCAPE MOBILE */
-@media (max-width: 48rem) and (orientation: landscape) {
+@media (max-width: 64rem) and (orientation: landscape) {
     .cabecalho__titulo {
         font-size: 1.25rem;
         margin: 0.5rem;
@@ -715,6 +784,23 @@ main #login{
         flex-wrap: wrap;
         justify-content: center;
     }
+
+    .main__login__container{
+        width: 100%;
+        max-width: 15rem;
+        height: auto;
+        align-content:center;
+        align-items:center;
+        padding: 0.5rem 0.5rem;
+        font-size: 0.8rem;
+
+    }
+ 
+    .main__login__container button{
+        max-width: 5rem;
+        height: auto;      
+
+    }
     
     .menu {
         flex-direction: row;
@@ -722,3 +808,4 @@ main #login{
         gap: 1rem;
     }
 }
+    
