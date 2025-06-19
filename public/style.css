@@ -438,6 +438,15 @@ main #login{
     margin: auto;
 }
 
+.main__login__container input{
+    font-family: var(--fonte-secundaria);
+    background-color: rgba(0, 0, 0, 0.336);
+    border-color:aliceblue;
+    color:aliceblue;
+    padding:0.5rem;
+    border-radius: 1rem;
+}
+
 .main__link{
     font-family: var(--fonte-secundaria);
     cursor:pointer;
