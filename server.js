@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const fsPromises = require('fs').promises;
 const qrcode = require('qrcode');
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const cron = require('node-cron');
@@ -586,6 +587,173 @@ app.post('/apagar-todos-anuncios', (req, res) => {
   }
 });
 */
+
+//cadastro
+const LOGIN_FILE = 'login.txt';
+
+// Inicializar o arquivo login.txt, se não existir
+async function inicializarArquivoLogin() {
+  try {
+    await fsPromises.access(LOGIN_FILE);
+    console.log('Arquivo login.txt encontrado');
+  } catch (error) {
+    await fsPromises.writeFile(LOGIN_FILE, '', 'utf8');
+    console.log('Arquivo login.txt criado');
+  }
+}
+
+// Função para ler usuários do arquivo
+async function lerUsuarios() {
+  try {
+    const data = await fsPromises.readFile(LOGIN_FILE, 'utf8');
+    if (!data.trim()) return [];
+
+    return data.trim().split('\n').map(linha => {
+      const [login, senha] = linha.split(':');
+      return { login, senha };
+    }).filter(user => user.login && user.senha);
+  } catch (error) {
+    console.error('Erro ao ler usuários:', error);
+    return [];
+  }
+}
+
+// Função para salvar um novo usuário
+async function salvarUsuario(login, senha) {
+  try {
+    const novaLinha = `${login}:${senha}\n`;
+    await fsPromises.appendFile(LOGIN_FILE, novaLinha, 'utf8');
+    return true;
+  } catch (error) {
+    console.error('Erro ao salvar usuário:', error);
+    return false;
+  }
+}
+
+// Verifica se o login já existe
+async function usuarioExiste(login) {
+  const usuarios = await lerUsuarios();
+  return usuarios.some(user => user.login === login);
+}
+
+// ROTAS DA API
+
+// Rota para cadastrar usuário
+app.post('/cadastrar', async (req, res) => {
+  try {
+    const { login, senha } = req.body;
+    
+    // Validações
+    if (!login || !senha) {
+      return res.status(400).json({ 
+        sucesso: false, 
+        mensagem: 'Login e senha são obrigatórios!' 
+      });
+    }
+    
+    if (login.length < 3) {
+      return res.status(400).json({ 
+        sucesso: false, 
+        mensagem: 'Login deve ter pelo menos 3 caracteres!' 
+      });
+    }
+    
+    if (senha.length < 4) {
+      return res.status(400).json({ 
+        sucesso: false, 
+        mensagem: 'Senha deve ter pelo menos 4 caracteres!' 
+      });
+    }
+    
+    // Verificar se usuário já existe
+    if (await usuarioExiste(login)) {
+      return res.status(409).json({ 
+        sucesso: false, 
+        mensagem: 'Este login já existe!' 
+      });
+    }
+    
+    // Salvar usuário
+    const sucesso = await salvarUsuario(login, senha);
+    
+    if (sucesso) {
+      console.log(`Usuário cadastrado: ${login}`);
+      res.json({ 
+        sucesso: true, 
+        mensagem: 'Cadastro realizado com sucesso!' 
+      });
+    } else {
+      res.status(500).json({ 
+        sucesso: false, 
+        mensagem: 'Erro interno do servidor' 
+      });
+    }
+    
+  } catch (error) {
+    console.error('Erro no cadastro:', error);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro interno do servidor' 
+    });
+  }
+});
+
+// Rota para fazer login
+app.post('/login', async (req, res) => {
+  try {
+    const { login, senha } = req.body;
+    
+    if (!login || !senha) {
+      return res.status(400).json({ 
+        sucesso: false, 
+        mensagem: 'Login e senha são obrigatórios!' 
+      });
+    }
+    
+    const usuarios = await lerUsuarios();
+    const usuarioEncontrado = usuarios.find(user => 
+      user.login === login && user.senha === senha
+    );
+    
+    if (usuarioEncontrado) {
+      // Gerar token simples (em produção, use JWT)
+      const token = 'auth_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      
+      console.log(`Login realizado: ${login}`);
+      res.json({ 
+        sucesso: true, 
+        mensagem: 'Login realizado com sucesso!',
+        token: token 
+      });
+    } else {
+      res.status(401).json({ 
+        sucesso: false, 
+        mensagem: 'Login ou senha incorretos' 
+      });
+    }
+    
+  } catch (error) {
+    console.error('Erro no login:', error);
+    res.status(500).json({ 
+      sucesso: false, 
+      mensagem: 'Erro interno do servidor' 
+    });
+  }
+});
+
+// Rota para listar usuários (apenas para debug)
+app.get('/usuarios', async (req, res) => {
+  try {
+    const usuarios = await lerUsuarios();
+    // Não retornar senhas por segurança
+    const usuariosSemSenha = usuarios.map(user => ({ login: user.login }));
+    res.json(usuariosSemSenha);
+  } catch (error) {
+    console.error('Erro ao listar usuários:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
 
 app.listen(PORT, () => {
   console.log(`🟢 Servidor rodando em http://localhost:${PORT}/index.html`);

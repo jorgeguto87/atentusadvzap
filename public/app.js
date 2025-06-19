@@ -1,19 +1,368 @@
-const links = document.querySelectorAll(".menu a");
-const main = document.querySelector("main");
+let usuarioLogado = false;
+let sessionToken = null;
+
+// Páginas que não requerem login
+const paginasPublicas = ['login', 'cadastro'];
+
+
+
+// Função para verificar se o usuário está logado
+function verificarAutenticacao() {
+  // Verifica se existe um token de sessão válido
+  const token = sessionStorage.getItem('sessionToken');
+  const loginStatus = sessionStorage.getItem('usuarioLogado');
+  
+  if (token && loginStatus === 'true') {
+    usuarioLogado = true;
+    sessionToken = token;
+    return true;
+  }
+  return false;
+}
+
+// Função para fazer login (agora usando API)
+async function realizarLogin(username, password) {
+  try {
+    const response = await fetch('/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        login: username,
+        senha: password
+      })
+    });
+    
+    const resultado = await response.json();
+    
+    if (resultado.sucesso) {
+      usuarioLogado = true;
+      sessionToken = resultado.token;
+      
+      // Salvar estado de login na sessão
+      sessionStorage.setItem('usuarioLogado', 'true');
+      sessionStorage.setItem('sessionToken', sessionToken);
+      sessionStorage.setItem('loginUsuario', username);
+      
+      // Mostrar/esconder elementos baseado no login
+      atualizarInterfaceLogin();
+      
+      return { sucesso: true, mensagem: resultado.mensagem };
+    } else {
+      return { sucesso: false, mensagem: resultado.mensagem };
+    }
+    
+  } catch (error) {
+    console.error('Erro no login:', error);
+    return { sucesso: false, mensagem: 'Erro de conexão com o servidor' };
+  }
+}
+
+// Função para cadastrar usuário (agora usando API)
+async function realizarCadastroUsuario(login, senha) {
+  try {
+    const response = await fetch('/cadastrar', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        login: login,
+        senha: senha
+      })
+    });
+    
+    const resultado = await response.json();
+    
+    console.log('Resposta do servidor:', resultado);
+    
+    return {
+      sucesso: resultado.sucesso,
+      mensagem: resultado.mensagem
+    };
+    
+  } catch (error) {
+    console.error('Erro no cadastro:', error);
+    return {
+      sucesso: false,
+      mensagem: 'Erro de conexão com o servidor'
+    };
+  }
+}
+
+// Função para fazer logout
+function realizarLogout() {
+  usuarioLogado = false;
+  sessionToken = null;
+  
+  // Limpar dados da sessão
+  sessionStorage.removeItem('usuarioLogado');
+  sessionStorage.removeItem('sessionToken');
+  sessionStorage.removeItem('loginUsuario');
+  
+  // Atualizar interface
+  atualizarInterfaceLogin();
+  
+  // Redirecionar para login
+  carregarPagina('login');
+}
+
+// Função para atualizar a interface baseada no status de login
+function atualizarInterfaceLogin() {
+  const navLinks = document.querySelectorAll('[data-page]');
+  
+  navLinks.forEach(link => {
+    const pagina = link.getAttribute('data-page');
+    
+    if (!paginasPublicas.includes(pagina)) {
+      if (usuarioLogado) {
+        link.style.display = 'block';
+        link.style.pointerEvents = 'auto';
+        link.style.opacity = '1';
+      } else {
+        link.style.display = 'none';
+      }
+    }
+  });
+  
+  // Mostrar nome do usuário logado se houver elemento para isso
+  const userDisplay = document.getElementById('usuarioLogado');
+  if (userDisplay) {
+    const nomeUsuario = sessionStorage.getItem('loginUsuario');
+    if (usuarioLogado && nomeUsuario) {
+      userDisplay.textContent = `Bem-vindo, ${nomeUsuario}!`;
+      userDisplay.style.display = 'block';
+    } else {
+      userDisplay.style.display = 'none';
+    }
+  }
+}
 
 function carregarPagina(pagina) {
+  // Verificar se a página requer autenticação
+  if (!paginasPublicas.includes(pagina) && !verificarAutenticacao()) {
+    alert('Você precisa fazer login para acessar esta página!');
+    carregarPagina('login');
+    return;
+  }
+  
+  // Debug: verificar se o arquivo existe
+  console.log(`Tentando carregar: pages/${pagina}.html`);
+  
   fetch(`pages/${pagina}.html`)
-    .then(response => response.text())
-    .then(html => {
-      main.innerHTML = html;
-      inicializarElementosPagina();
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Arquivo não encontrado: pages/${pagina}.html (${response.status})`);
+      }
+      return response.text();
     })
-    .catch(() => {
-      main.innerHTML = "<p>Erro ao carregar conteúdo.</p>";
+    .then(html => {
+      const main = document.querySelector('main') || document.getElementById('main');
+      if (main) {
+        main.innerHTML = html;
+      }
+      
+      // Atualizar navegação ativa
+      const activeLinks = document.querySelectorAll('.nav-link.active');
+      activeLinks.forEach(link => link.classList.remove('active'));
+      
+      const currentLink = document.querySelector(`[data-page="${pagina}"]`);
+      if (currentLink) {
+        currentLink.classList.add('active');
+      }
+      
+      // Inicializar funcionalidades específicas da página
+      if (pagina === 'login') {
+        inicializarLogin();
+      } else if (pagina === 'cadastro') {
+        botaoLogin();
+        inicializarElementosPagina();
+        inicializarCadastro();
+      } else {
+        inicializarElementosPagina();
+      }
+      
+      // Atualizar interface baseada no login
+      atualizarInterfaceLogin();
+      
+      console.log(`Página ${pagina} carregada com sucesso`);
+    })
+    .catch((error) => {
+      console.error('Erro detalhado:', error);
+      const main = document.querySelector('main') || document.getElementById('main');
+      if (main) {
+        if (pagina === 'anuncios') {
+          const nomeUsuario = sessionStorage.getItem('loginUsuario') || 'Usuário';
+          main.innerHTML = `
+            <div style="text-align: center; padding: 2rem;">
+              <h2>Bem-vindo, ${nomeUsuario}!</h2>
+              <p>Login realizado com sucesso.</p>
+              <p><small>Arquivo pages/anuncios.html não encontrado.</small></p>
+              <button onclick="realizarLogout()" style="background: #dc3545; color: white; border: none; border-radius: 4px;">
+                Fazer Logout
+              </button>
+            </div>
+          `;
+        } else {
+          main.innerHTML = `
+            <div style="text-align: center; padding: 2rem;">
+              <h2>Erro ao carregar página</h2>
+              <p>Não foi possível carregar: <strong>${pagina}.html</strong></p>
+              <p><small>${error.message}</small></p>
+              <button onclick="carregarPagina('login')">
+                Voltar ao Login
+              </button>
+            </div>
+          `;
+        }
+      }
     });
 }
 
+// Função para inicializar o cadastro
+function inicializarCadastro() {
+  const btncadastrarUser = document.getElementById('btnCadastrar');
+  const loginCadastro = document.getElementById('loginCadastro');
+  const senhaCadastro = document.getElementById('senhaCadastro');
+  const statusCadastro = document.getElementById('statusCadastro');
+
+  if (btncadastrarUser) {
+    btncadastrarUser.addEventListener('click', async (e) => {
+      e.preventDefault();
+      
+      if (!loginCadastro || !senhaCadastro) {
+        console.error('Elementos de cadastro não encontrados');
+        return;
+      }
+      
+      // Mostrar loading
+      btncadastrarUser.disabled = true;
+      btncadastrarUser.textContent = 'Cadastrando...';
+      
+      if (statusCadastro) {
+        statusCadastro.textContent = 'Processando...';
+        statusCadastro.style.color = 'blue';
+      }
+      
+      const resultado = await realizarCadastroUsuario(
+        loginCadastro.value.trim(), 
+        senhaCadastro.value
+      );
+      
+      // Restaurar botão
+      btncadastrarUser.disabled = false;
+      btncadastrarUser.textContent = 'Cadastrar';
+      
+      if (statusCadastro) {
+        statusCadastro.textContent = resultado.mensagem;
+        statusCadastro.style.color = resultado.sucesso ? 'green' : 'red';
+      }
+      
+      if (resultado.sucesso) {
+        loginCadastro.value = '';
+        senhaCadastro.value = '';
+        
+        // Redirecionar para login após cadastro bem-sucedido
+        setTimeout(() => {
+          carregarPagina('login');
+        }, 1500);
+      }
+    });
+  } else {
+    console.error('Botão de cadastro não encontrado');
+  }
+}
+
+function botaoLogin(){
+  const btnLogin = document.getElementById('linkLogin');
+  if (btnLogin) {
+    btnLogin.addEventListener('click', (e) => {
+      e.preventDefault();
+      carregarPagina('login');
+    });
+  }
+}
+
+function botaoCadastrar(){
+  const btnCadastro = document.getElementById('linkCadastro');
+  if (btnCadastro) {
+    btnCadastro.addEventListener('click', (e) => {
+      e.preventDefault();
+      carregarPagina('cadastro');
+    });
+  }
+}
+
+function inicializarLogin() {
+  const btnEntrar = document.getElementById('btnEntrar');
+  
+  if (btnEntrar) {
+    btnEntrar.addEventListener('click', async (e) => {
+      e.preventDefault();
+      
+      const login = document.getElementById('login');
+      const senha = document.getElementById('senha');
+      const statusLogin = document.getElementById('statusLogin');
+      
+      // Limpar status anterior
+      if (statusLogin) {
+        statusLogin.textContent = '';
+        statusLogin.style.color = '';
+      }
+      
+      if (login && senha) {
+        // Mostrar loading
+        btnEntrar.disabled = true;
+        btnEntrar.textContent = 'Entrando...';
+        
+        if (statusLogin) {
+          statusLogin.textContent = 'Verificando credenciais...';
+          statusLogin.style.color = 'blue';
+        }
+        
+        const resultado = await realizarLogin(login.value.trim(), senha.value);
+        
+        // Restaurar botão
+        btnEntrar.disabled = false;
+        btnEntrar.textContent = 'Entrar';
+        
+        if (resultado.sucesso) {
+          // Login bem-sucedido
+          if (statusLogin) {
+            statusLogin.textContent = resultado.mensagem;
+            statusLogin.style.color = 'green';
+          }
+          
+          // Redirecionar para página principal após login
+          setTimeout(() => {
+            carregarPagina('anuncios');
+          }, 500);
+          
+        } else {
+          // Login falhou
+          if (statusLogin) {
+            statusLogin.textContent = resultado.mensagem;
+            statusLogin.style.color = 'red';
+          }
+          login.value = '';
+          senha.value = '';
+        }
+      }
+    });
+  }
+  
+  // Inicializar botão de cadastro se estiver na página de login
+  botaoCadastrar();
+}
+
+
 function inicializarElementosPagina() {
+  if (!verificarAutenticacao() && !paginasPublicas.includes(getCurrentPage())) {
+    carregarPagina('login');
+    return;
+  }
+
   const button = document.getElementById('emoji-button');
   const picker = document.getElementById('emoji-picker');
   const textarea = document.getElementById('input_text');
@@ -672,15 +1021,32 @@ if (document.getElementById('btn-apagar-todos')){
 }
 
 // Configura os links do menu
-links.forEach(link => {
-  link.addEventListener("click", e => {
-    e.preventDefault();
-    const pagina = e.target.getAttribute("data-page");
-    carregarPagina(pagina);
-  });
-});
+function getCurrentPage() {
+  const activeLink = document.querySelector('.nav-link.active');
+  return activeLink ? activeLink.getAttribute('data-page') : 'login';
+}
 
-// Carrega página inicial
-document.addEventListener("DOMContentLoaded", () => {
-  carregarPagina("anuncios");
+// Função para inicializar a aplicação
+function inicializarApp() {
+  // Verificar se já está logado
+  if (verificarAutenticacao()) {
+    carregarPagina('anuncios');
+  } else {
+    carregarPagina('login');
+  }
+  
+  // Configurar event listeners para navegação
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('[data-page]');
+    if (link) {
+      e.preventDefault();
+      const pagina = link.getAttribute('data-page');
+      carregarPagina(pagina);
+    }
+  });
+}
+
+// Inicializar quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', () => {
+  inicializarApp();
 });
