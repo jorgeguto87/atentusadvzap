@@ -710,6 +710,16 @@ main #login{
         height: auto;      
 
     }
+
+    .main__login__container input{
+        color:aliceblue;
+        background: rgba(0, 0, 0, 0.281);
+        border-radius: 1rem;
+        padding: 0.5rem;
+        font-family: var(--fonte-secundaria);
+        font-size: 0.875rem;
+        border-color: aliceblue;    
+    }
     
     .main__selection__hours {
         align-items: center;
