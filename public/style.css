@@ -154,6 +154,7 @@
 
 .main__preview p{
     max-width: 100%;
+    text-align: left;
     word-break: break-word;
     overflow-wrap: break-word;
     font-size: 0.8125rem; /* 13px */
